@@ -2,7 +2,6 @@ package config
 
 import (
 	"log"
-	"os"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -20,19 +19,11 @@ type HttpServer struct {
 }
 
 func MustLoad() *Config {
-	configPath := os.Getenv("CONFIG_PATH")
-	if configPath == "" {
-		log.Fatal("CONFIG_PATH environment variable not set")
+	cfg := &Config{}
+
+	if err := cleanenv.ReadConfig(".env", cfg); err != nil {
+		log.Fatalf("cannot read config from .env: %v", err)
 	}
 
-	if _, err := os.Stat(configPath); err != nil {
-		log.Fatalf("cannot access CONFIG_PATH: %v", err)
-	}
-
-	var cfg Config
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cannot read config: %v", err)
-	}
-
-	return &cfg
+	return cfg
 }
